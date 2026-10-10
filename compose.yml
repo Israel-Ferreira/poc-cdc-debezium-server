@@ -1,0 +1,59 @@
+services:
+  debezium-server:
+    image: quay.io/debezium/server:3.6
+    user: root
+
+    ports:
+      - 8080:8080
+
+    volumes:
+      - ./debezium-config:/debezium/config
+      - ./debezium-data:/debezium/data
+
+
+  redis:
+    image: redis:8.10.2
+    restart: always
+
+    ports:
+      - 6379:6379
+
+
+    volumes:
+      - redis-data:/data
+
+
+    
+  banco-cdc:
+    image: postgres:18.6-trixie
+    restart: always
+
+    command: 
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: banco_cdc
+
+
+    ports:
+      - 5434:5432
+
+    volumes:
+      - banco-cdc-data:/var/lib/postgresql/18/docker
+
+
+volumes:
+  redis-data:
+  banco-cdc-data:
+
+    
+  
+
